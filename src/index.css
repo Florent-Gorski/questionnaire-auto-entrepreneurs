@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-sans text-slate-800 bg-gradient-to-br from-slate-50 to-slate-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-swiss-red text-white font-semibold hover:bg-red-700 transition-colors;
+  }
+
+  .badge-swiss {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-swiss-red ring-1 ring-swiss-red;
+  }
+}
