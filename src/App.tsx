@@ -100,7 +100,7 @@ function App() {
           plateforme: formData.plateforme || null,
           communication: formData.communication || [],
           evenements: formData.evenements || null,
-          plateformes: formData.platformes || null,
+          plateformes: formData.plateformes || null,
           suggestions: formData.suggestions || null,
           email: formData.email || null,
         };
