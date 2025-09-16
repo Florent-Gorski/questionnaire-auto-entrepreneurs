@@ -1,4 +1,3 @@
-// netlify/functions/export-responses.js
 const { createClient } = require('@supabase/supabase-js');
 
 const json = (status, body) => ({
@@ -12,7 +11,6 @@ const json = (status, body) => ({
 
 exports.handler = async (event) => {
   try {
-    // Auth simple par token
     const token = event.headers['x-admin-token'];
     if (!token || token !== process.env.ADMIN_TOKEN) {
       return json(401, { error: 'Unauthorized: bad ADMIN_TOKEN' });
@@ -38,10 +36,7 @@ exports.handler = async (event) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      // ex: relation does not exist, RLS, etc.
-      return json(500, { error: error.message });
-    }
+    if (error) return json(500, { error: error.message });
 
     const format = (event.queryStringParameters && event.queryStringParameters.format) || 'json';
 
