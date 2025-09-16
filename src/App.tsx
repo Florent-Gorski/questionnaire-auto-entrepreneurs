@@ -109,7 +109,7 @@ function App()
           email: formData.email || null,
         };
 
-        const { error } = await (supabase.from('questionnaire_responses').insert(payload));
+        const { error } = await supabase.from('questionnaire_responses').insert(payload);
         if (error) throw error;
       }
       setIsCompleted(true);
@@ -132,7 +132,8 @@ function App()
       case 0:
         return formData.statut !== '' && formData.canton !== '';
       case 1:
-        return formData.projet !== '' && formData.projetSecteur !== '' && formData.freins.length > 0;
+        // Projet + au moins un frein requis (secteur optionnel)
+        return formData.projet.trim() !== '' && formData.freins.length > 0;
       case 2:
         return formData.ressources.length > 0 && formData.accompagnement !== '';
       case 3:
