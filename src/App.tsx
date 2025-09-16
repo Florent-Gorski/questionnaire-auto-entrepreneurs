@@ -147,6 +147,38 @@ function App()
     }
   };
 
+  // 🔎 Panneau d’alerte : raisons qui bloquent le bouton suivant
+  const getBlockingReasons = (): string[] =>
+  {
+    const reasons: string[] = [];
+    switch (currentSection) {
+      case 0:
+        if (!formData.statut.trim()) reasons.push('Choisir un statut');
+        if (!formData.canton.trim()) reasons.push('Sélectionner un canton');
+        break;
+      case 1:
+        if (!formData.projet.trim()) reasons.push('Décrire brièvement ton projet');
+        if (formData.freins.length === 0) reasons.push('Cocher au moins un frein');
+        break; // secteur optionnel désormais
+      case 2:
+        if (formData.ressources.length === 0) reasons.push('Choisir au moins une ressource utile');
+        if (!formData.accompagnement.trim()) reasons.push('Sélectionner un type d’accompagnement');
+        break;
+      case 3:
+        if (formData.fonctionnalites.length === 0) reasons.push('Choisir au moins une fonctionnalité prioritaire');
+        if (!formData.plateforme.trim()) reasons.push('Indiquer la plateforme préférée');
+        break;
+      case 4:
+        if (formData.communication.length === 0) reasons.push('Choisir au moins un canal de communication');
+        if (!formData.evenements.trim()) reasons.push('Indiquer le type d’événements souhaités');
+        break;
+      default:
+        break;
+    }
+    return reasons;
+  };
+
+  // ✅ RENDU DE LA SECTION COURANTE
   const renderSection = () =>
   {
     const sectionProps = { formData, updateFormData };
@@ -203,38 +235,55 @@ function App()
           <div className="p-6 md:p-8">
             {renderSection()}
 
-            {/* Navigation */}
-            <div className="mt-8 flex items-center justify-between">
-              <button
-                onClick={prevSection}
-                disabled={currentSection === 0}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft size={20} />
-                Précédent
-              </button>
+            {/* Navigation + Alerte UX */}
+            <div className="mt-8 space-y-3">
+              {!isSubmitting && !canProceed() && (
+                <div
+                  className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p className="font-medium">Il manque encore :</p>
+                  <ul className="mt-1 list-disc pl-5">
+                    {getBlockingReasons().map((r) => (
+                      <li key={r}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              <div className="text-sm text-slate-600">
-                Section {currentSection + 1} sur {totalSections}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={prevSection}
+                  disabled={currentSection === 0}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={20} />
+                  Précédent
+                </button>
+
+                <div className="text-sm text-slate-600">
+                  Section {currentSection + 1} sur {totalSections}
+                </div>
+
+                {isSubmitting && (
+                  <div className="text-sm text-slate-500 mr-4">Envoi en cours…</div>
+                )}
+                {submitError && (
+                  <div className="text-sm text-red-600 mr-4">Une erreur est survenue : {submitError}</div>
+                )}
+
+                <button
+                  onClick={nextSection}
+                  disabled={!canProceed() || isSubmitting}
+                  className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200
+                             disabled:opacity-40 disabled:cursor-not-allowed
+                             bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-sm"
+                >
+                  {currentSection === totalSections - 1 ? 'Terminer' : 'Suivant'}
+                  {currentSection === totalSections - 1 ? <CheckCircle size={20} /> : <ChevronRight size={20} />}
+                </button>
               </div>
-
-              {isSubmitting && (
-                <div className="text-sm text-slate-500 mr-4">Envoi en cours…</div>
-              )}
-              {submitError && (
-                <div className="text-sm text-red-600 mr-4">Une erreur est survenue : {submitError}</div>
-              )}
-
-              <button
-                onClick={nextSection}
-                disabled={!canProceed() || isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200
-                           disabled:opacity-40 disabled:cursor-not-allowed
-                           bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-sm"
-              >
-                {currentSection === totalSections - 1 ? 'Terminer' : 'Suivant'}
-                {currentSection === totalSections - 1 ? <CheckCircle size={20} /> : <ChevronRight size={20} />}
-              </button>
             </div>
           </div>
         </div>
