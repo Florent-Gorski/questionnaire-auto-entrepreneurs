@@ -10,8 +10,7 @@ import Section6 from './components/Section6';
 import ThankYou from './components/ThankYou';
 import { supabase } from './lib/supabaseClient';
 
-export interface FormData
-{
+export interface FormData {
   // Section 1
   statut: string;
   statutAutre: string;
@@ -42,8 +41,7 @@ export interface FormData
   email: string;
 }
 
-function App()
-{
+function App() {
   const totalSections = 6;
 
   const [currentSection, setCurrentSection] = useState(0);
@@ -71,13 +69,11 @@ function App()
     email: ''
   });
 
-  const updateFormData = (updates: Partial<FormData>) =>
-  {
+  const updateFormData = (updates: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  const nextSection = async () =>
-  {
+  const nextSection = async () => {
     if (currentSection < totalSections - 1) {
       setCurrentSection(prev => prev + 1);
       return;
@@ -104,7 +100,7 @@ function App()
           plateforme: formData.plateforme || null,
           communication: formData.communication || [],
           evenements: formData.evenements || null,
-          plateformes: formData.plateformes || null,
+          plateformes: formData.platformes || null,
           suggestions: formData.suggestions || null,
           email: formData.email || null,
         };
@@ -121,13 +117,11 @@ function App()
     }
   };
 
-  const prevSection = () =>
-  {
+  const prevSection = () => {
     if (currentSection > 0) setCurrentSection(prev => prev - 1);
   };
 
-  const canProceed = () =>
-  {
+  const canProceed = () => {
     switch (currentSection) {
       case 0:
         return formData.statut !== '' && formData.canton !== '';
@@ -148,8 +142,7 @@ function App()
   };
 
   // 🔎 Panneau d’alerte : raisons qui bloquent le bouton suivant
-  const getBlockingReasons = (): string[] =>
-  {
+  const getBlockingReasons = (): string[] => {
     const reasons: string[] = [];
     switch (currentSection) {
       case 0:
@@ -159,7 +152,7 @@ function App()
       case 1:
         if (!formData.projet.trim()) reasons.push('Décrire brièvement ton projet');
         if (formData.freins.length === 0) reasons.push('Cocher au moins un frein');
-        break; // secteur optionnel désormais
+        break;
       case 2:
         if (formData.ressources.length === 0) reasons.push('Choisir au moins une ressource utile');
         if (!formData.accompagnement.trim()) reasons.push('Sélectionner un type d’accompagnement');
@@ -179,8 +172,7 @@ function App()
   };
 
   // ✅ RENDU DE LA SECTION COURANTE
-  const renderSection = () =>
-  {
+  const renderSection = () => {
     const sectionProps = { formData, updateFormData };
     switch (currentSection) {
       case 0: return <Section1 {...sectionProps} />;

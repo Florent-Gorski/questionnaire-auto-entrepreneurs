@@ -40,11 +40,16 @@ export default function Section2({ formData, updateFormData }: Props)
         <h2 className="text-xl font-display font-semibold text-slate-900">
           Décris ton projet
         </h2>
+        <p className="mt-1 text-sm text-slate-600" id="projet-help">
+          Quelques lignes suffisent (ex. activité, clients visés).
+        </p>
         <textarea
           className="mt-3 w-full min-h-[100px] rounded-xl border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-swiss-red/40"
-          placeholder="Ex. Coaching pour indépendants, boutique en ligne..."
+          placeholder="Ex. Coaching pour indépendants, boutique en ligne de produits suisses..."
           value={formData.projet}
           onChange={handleProjet}
+          aria-describedby="projet-help"
+          autoFocus
         />
       </div>
 
@@ -61,7 +66,7 @@ export default function Section2({ formData, updateFormData }: Props)
           onChange={handleSecteur}
         />
         <p className="mt-1 text-xs text-slate-500">
-          Facultatif — ne bloque pas la suite
+          Facultatif — ne bloque pas la suite.
         </p>
       </div>
 
@@ -70,23 +75,28 @@ export default function Section2({ formData, updateFormData }: Props)
         <h3 className="text-base font-semibold text-slate-900">
           Quels sont tes principaux freins ?
         </h3>
-        <p className="mt-1 text-sm text-slate-600">Coche au moins un.</p>
+        <p className="mt-1 text-sm text-slate-600">Tu peux cocher plusieurs réponses.</p>
 
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {FREINS.map(f => (
-            <label
-              key={f}
-              className="flex items-center gap-3 rounded-xl border px-4 py-3 hover:bg-slate-50 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                className="h-4 w-4"
-                checked={formData.freins.includes(f)}
-                onChange={() => toggleFrein(f)}
-              />
-              <span className="text-sm text-slate-800">{f}</span>
-            </label>
-          ))}
+          {FREINS.map(f =>
+          {
+            const checked = formData.freins.includes(f);
+            return (
+              <label
+                key={f}
+                className="flex items-center gap-3 rounded-xl border px-4 py-3 hover:bg-slate-50 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={checked}
+                  onChange={() => toggleFrein(f)}
+                  aria-checked={checked}
+                />
+                <span className="text-sm text-slate-800">{f}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
     </div>
