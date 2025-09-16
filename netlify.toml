@@ -3,13 +3,13 @@
   publish   = "dist"
   functions = "netlify/functions"
 
-# ⚠️ Laisser passer les fonctions AVANT la règle SPA
+# Optional: make sure /admin also serves the SPA entry
 [[redirects]]
-  from = "/.netlify/functions/*"
-  to   = "/.netlify/functions/:splat"
+  from = "/admin"
+  to   = "/index.html"
   status = 200
 
-# SPA fallback (Vite)
+# SPA fallback for all other frontend routes
 [[redirects]]
   from = "/*"
   to   = "/index.html"
