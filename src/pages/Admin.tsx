@@ -46,7 +46,6 @@ export default function Admin()
       if (!res.ok) throw new Error(`HTTP ${res.status} — ${await res.text()}`);
       const data: unknown = await res.json();
       if (Array.isArray(data)) {
-        // S’assurer que chaque élément est un objet clé/valeur
         const normalized: Row[] = data.map((d) =>
           (d && typeof d === 'object' ? (d as Record<string, unknown>) : {})
         );

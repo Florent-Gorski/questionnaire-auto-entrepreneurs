@@ -1,4 +1,3 @@
-// netlify/functions/export-responses.js
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async (event) => {
