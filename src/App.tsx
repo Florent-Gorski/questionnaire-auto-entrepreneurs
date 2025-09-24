@@ -9,36 +9,22 @@ import Section5 from './components/Section5';
 import Section6 from './components/Section6';
 import ThankYou from './components/ThankYou';
 
-// ❌ remove Supabase import – we don't need it any more
-// import { supabase } from './lib/supabaseClient';
-
 export interface FormData
 {
-  // Section 1
   statut: string;
   statutAutre: string;
   canton: string;
-
-  // Section 2
   projet: string;
   projetSecteur: string;
   freins: string[];
   freinsAutre: string;
-
-  // Section 3
   ressources: string[];
   ressourcesAutre: string;
   accompagnement: string;
-
-  // Section 4
   fonctionnalites: string[];
   plateforme: string;
-
-  // Section 5
   communication: string[];
   evenements: string;
-
-  // Section 6
   plateformes: string;
   suggestions: string;
   email: string;
@@ -78,7 +64,6 @@ function App()
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  /* ----------  SUBMIT  ---------- */
   const nextSection = async () =>
   {
     if (currentSection < totalSections - 1) {
@@ -86,47 +71,36 @@ function App()
       return;
     }
 
-    // Dernière étape : envoi vers Google Apps Script
+    // Dernière étape : sauvegarde + redirection
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      const payload = {
-        statut: formData.statut,
-        statutAutre: formData.statutAutre || null,
-        canton: formData.canton || null,
-        projet: formData.projet || null,
-        projetSecteur: formData.projetSecteur || null,
-        freins: formData.freins || [],
-        freinsAutre: formData.freinsAutre || null,
-        ressources: formData.ressources || [],
-        ressourcesAutre: formData.ressourcesAutre || null,
-        accompagnement: formData.accompagnement || null,
-        fonctionnalites: formData.fonctionnalites || [],
-        plateforme: formData.plateforme || null,
-        communication: formData.communication || [],
-        evenements: formData.evenements || null,
-        plateformes: formData.plateformes || null,
-        suggestions: formData.suggestions || null,
-        email: formData.email || null,
-      };
+      // 1. Sauvegarde locale
+      localStorage.setItem('questionnaire', JSON.stringify(formData));
 
-      // ➜ envoi vers Google Apps Script
-      const res = await fetch(
-        'https://script.google.com/macros/s/AKfycbyb7NIaeLorAb4OA_Ny4KnGmBKJrGl0jmMlXhJBvwvspC7Suu-AzsBO8c6106R8BRenfA/exec',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }
-      );
+      // 2. Création et soumission du formulaire caché (évite CORS)
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://script.google.com/macros/s/AKfycbyb7NIaeLorAb4OA_Ny4KnGmBKJrGl0jmMlXhJBvwvspC7Suu-AzsBO8c6106R8BRenfA/exec';
+      form.style.display = 'none';
 
-      if (!res.ok) throw new Error('Échec de l’envoi');
+      // Ajoute chaque champ
+      Object.entries(formData).forEach(([key, value]) =>
+      {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = Array.isArray(value) ? value.join(', ') : String(value || '');
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit(); // redirection classique (pas de CORS)
       setIsCompleted(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erreur lors de l’envoi.';
       setSubmitError(message);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -200,7 +174,7 @@ function App()
   };
 
   if (isCompleted) {
-    return <ThankYou formData={formData} updateFormData={updateFormData} />;
+    return <ThankYou />;
   }
 
   return (
