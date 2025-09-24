@@ -8,9 +8,12 @@ import Section4 from './components/Section4';
 import Section5 from './components/Section5';
 import Section6 from './components/Section6';
 import ThankYou from './components/ThankYou';
-import { supabase } from './lib/supabaseClient';
 
-export interface FormData {
+// ❌ remove Supabase import – we don't need it any more
+// import { supabase } from './lib/supabaseClient';
+
+export interface FormData
+{
   // Section 1
   statut: string;
   statutAutre: string;
@@ -41,7 +44,8 @@ export interface FormData {
   email: string;
 }
 
-function App() {
+function App()
+{
   const totalSections = 6;
 
   const [currentSection, setCurrentSection] = useState(0);
@@ -69,45 +73,55 @@ function App() {
     email: ''
   });
 
-  const updateFormData = (updates: Partial<FormData>) => {
+  const updateFormData = (updates: Partial<FormData>) =>
+  {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  const nextSection = async () => {
+  /* ----------  SUBMIT  ---------- */
+  const nextSection = async () =>
+  {
     if (currentSection < totalSections - 1) {
       setCurrentSection(prev => prev + 1);
       return;
     }
 
-    // Dernière étape : submit
+    // Dernière étape : envoi vers Google Apps Script
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      if (supabase) {
-        const payload = {
-          statut: formData.statut,
-          statut_autre: formData.statutAutre || null,
-          canton: formData.canton || null,
-          projet: formData.projet || null,
-          projet_secteur: formData.projetSecteur || null,
-          freins: formData.freins || [],
-          freins_autre: formData.freinsAutre || null,
-          ressources: formData.ressources || [],
-          ressources_autre: formData.ressourcesAutre || null,
-          accompagnement: formData.accompagnement || null,
-          fonctionnalites: formData.fonctionnalites || [],
-          plateforme: formData.plateforme || null,
-          communication: formData.communication || [],
-          evenements: formData.evenements || null,
-          plateformes: formData.plateformes || null,
-          suggestions: formData.suggestions || null,
-          email: formData.email || null,
-        };
+      const payload = {
+        statut: formData.statut,
+        statutAutre: formData.statutAutre || null,
+        canton: formData.canton || null,
+        projet: formData.projet || null,
+        projetSecteur: formData.projetSecteur || null,
+        freins: formData.freins || [],
+        freinsAutre: formData.freinsAutre || null,
+        ressources: formData.ressources || [],
+        ressourcesAutre: formData.ressourcesAutre || null,
+        accompagnement: formData.accompagnement || null,
+        fonctionnalites: formData.fonctionnalites || [],
+        plateforme: formData.plateforme || null,
+        communication: formData.communication || [],
+        evenements: formData.evenements || null,
+        plateformes: formData.plateformes || null,
+        suggestions: formData.suggestions || null,
+        email: formData.email || null,
+      };
 
-        const { error } = await supabase.from('questionnaire_responses').insert(payload);
-        if (error) throw error;
-      }
+      // ➜ envoi vers Google Apps Script
+      const res = await fetch(
+        'https://script.google.com/macros/s/AKfycbyb7NIaeLorAb4OA_Ny4KnGmBKJrGl0jmMlXhJBvwvspC7Suu-AzsBO8c6106R8BRenfA/exec',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (!res.ok) throw new Error('Échec de l’envoi');
       setIsCompleted(true);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erreur lors de l’envoi.';
@@ -117,16 +131,17 @@ function App() {
     }
   };
 
-  const prevSection = () => {
+  const prevSection = () =>
+  {
     if (currentSection > 0) setCurrentSection(prev => prev - 1);
   };
 
-  const canProceed = () => {
+  const canProceed = () =>
+  {
     switch (currentSection) {
       case 0:
         return formData.statut !== '' && formData.canton !== '';
       case 1:
-        // Projet facultatif, mais au moins un frein requis
         return formData.freins.length > 0;
       case 2:
         return formData.ressources.length > 0 && formData.accompagnement !== '';
@@ -135,14 +150,14 @@ function App() {
       case 4:
         return formData.communication.length > 0 && formData.evenements !== '';
       case 5:
-        return true; // section finale libre
+        return true;
       default:
         return false;
     }
   };
 
-  // 🔎 Panneau d’alerte : raisons qui bloquent le bouton suivant
-  const getBlockingReasons = (): string[] => {
+  const getBlockingReasons = (): string[] =>
+  {
     const reasons: string[] = [];
     switch (currentSection) {
       case 0:
@@ -170,8 +185,8 @@ function App() {
     return reasons;
   };
 
-  // ✅ RENDU DE LA SECTION COURANTE
-  const renderSection = () => {
+  const renderSection = () =>
+  {
     const sectionProps = { formData, updateFormData };
     switch (currentSection) {
       case 0: return <Section1 {...sectionProps} />;
